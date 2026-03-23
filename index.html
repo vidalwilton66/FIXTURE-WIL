@@ -7,91 +7,181 @@
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+
     <style>
         :root { --neon-blue: #00d4ff; --neon-pink: #ff0055; --bg-dark: #010103; --card-bg: #050515; }
         
-        /* DISEÑO DE PANTALLA (Estilo Gamer/Oscuro) */
-        body { background-color: var(--bg-dark); color: white; font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; }
-        
-        h1 { font-size: 24px; color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue); margin: 10px 0 5px 0; text-transform: uppercase; }
-        .autor { color: var(--neon-pink); font-weight: bold; letter-spacing: 2px; margin-bottom: 20px; font-size: 11px; text-transform: uppercase; }
+        body { background-color: var(--bg-dark); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; }
+        h1 { font-size: 24px; color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue); margin: 10px 0 5px 0; text-transform: uppercase; text-align: center; }
+        .autor { color: var(--neon-pink); font-weight: bold; letter-spacing: 2px; margin-bottom: 20px; font-size: 11px; text-align: center; }
 
-        /* Paneles de Control */
-        .panel { background: #0a0a1a; padding: 15px; border-radius: 10px; border: 1px solid #1a1a3a; width: 95%; max-width: 500px; box-shadow: 0 0 15px rgba(0,0,0,0.5); margin-bottom: 15px; }
-        
+        .panel { background: #0a0a1a; padding: 15px; border-radius: 10px; border: 1px solid #1a1a3a; width: 95%; max-width: 500px; margin-bottom: 15px; }
         .ingreso-equipo { display: flex; gap: 5px; margin-bottom: 10px; }
-        input[type="text"] { flex-grow: 1; background: #000; color: white; border: 1px solid #333; padding: 10px; border-radius: 5px; font-size: 16px; }
+        input[type="text"], input[type="email"], input[type="password"], select { flex-grow: 1; background: #000; color: white; border: 1px solid #333; padding: 10px; border-radius: 5px; font-size: 16px; }
         
-        button { border-radius: 5px; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        button { border-radius: 5px; border: none; font-weight: bold; cursor: pointer; padding: 10px; transition: 0.2s; }
         .btn-add { background: #222; color: white; border: 1px solid #444; padding: 10px 15px; }
-        .btn-main { width: 100%; padding: 15px; background: linear-gradient(45deg, #0055ff, #00aaff); color: white; text-transform: uppercase; font-size: 16px; margin-top: 10px; }
-        .btn-main:hover { box-shadow: 0 0 10px var(--neon-blue); }
+        .btn-main { width: 100%; padding: 15px; background: linear-gradient(45deg, #0055ff, #00aaff); color: white; font-size: 16px; margin-top: 10px; text-transform: uppercase; }
+        .btn-dorado { width: 100%; padding: 15px; background: linear-gradient(45deg, #ffaa00, #ffdd00); color: black; font-size: 16px; margin-top: 20px; box-shadow: 0 0 15px rgba(255, 170, 0, 0.4); }
 
-        #listaInscritos { list-style: none; padding: 0; margin: 0 0 10px 0; max-height: 100px; overflow-y: auto; color: #aaa; font-size: 13px; }
+        #listaInscritos { list-style: none; padding: 0; max-height: 100px; overflow-y: auto; color: #aaa; font-size: 13px; }
         
-        /* TARJETAS DE PARTIDO (FIXTURE) */
-        .seccion-titulo { font-size: 18px; color: #fff; border-left: 4px solid var(--neon-pink); padding-left: 10px; margin: 25px 0 10px 0; text-align: left; width: 100%; max-width: 550px; text-transform: uppercase;}
+        .seccion-titulo { font-size: 18px; color: #fff; border-left: 4px solid var(--neon-pink); padding-left: 10px; margin: 25px 0 10px 0; width: 100%; max-width: 550px; text-transform: uppercase; }
+        .fecha-titulo { font-size: 14px; color: var(--neon-blue); text-align: center; margin: 15px 0 5px 0; font-weight: bold; background: #111; padding: 5px; border-radius: 5px; }
         
         .match-card { background: var(--card-bg); border: 1px solid #1a1a3a; padding: 12px; margin: 8px 0; border-radius: 6px; display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 550px; box-sizing: border-box; }
-        .team-name { width: 38%; font-size: 13px; font-weight: bold; text-transform: uppercase; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .team-name { width: 38%; font-size: 12px; font-weight: bold; text-transform: uppercase; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
         .goles-input { width: 35px; padding: 5px; text-align: center; background: #000; color: var(--neon-blue); border: 1px solid var(--neon-blue); font-weight: bold; font-size: 14px; border-radius: 4px; }
-        .vs { font-size: 12px; color: #666; font-style: italic; }
-
-        /* TABLAS PRO (TOTAL STATS) */
+        
         .tabla-contenedor { width: 100%; max-width: 550px; overflow-x: auto; background: #050510; border-radius: 8px; border: 1px solid #222; margin-bottom: 20px; }
         table { width: 100%; border-collapse: collapse; font-size: 11px; min-width: 400px; }
-        th { background: #111; color: var(--neon-blue); padding: 10px 5px; text-transform: uppercase; border-bottom: 2px solid #222; }
+        th { background: #111; color: var(--neon-blue); padding: 10px 5px; border-bottom: 2px solid #222; text-transform: uppercase; }
         td { padding: 10px 5px; border-bottom: 1px solid #222; text-align: center; color: #ccc; }
-        .txt-left { text-align: left; padding-left: 10px; color: white; font-weight: bold; width: 30%; }
+        .txt-left { text-align: left; padding-left: 10px; color: white; font-weight: bold; }
         .col-pts { font-weight: bold; color: white; font-size: 12px; background: rgba(0,212,255,0.05); }
 
-        /* ESTILOS EXCLUSIVOS PARA EL PDF (FONDO BLANCO) */
-        .modo-pdf { background: white !important; color: black !important; padding: 20px !important; font-family: 'Helvetica', sans-serif !important; }
-        .modo-pdf h1, .modo-pdf .autor, .modo-pdf h2, .modo-pdf h3 { color: black !important; text-shadow: none !important; border-color: black !important; }
-        .modo-pdf .match-card { background: white !important; border: 1px solid #ccc !important; color: black !important; box-shadow: none !important; }
-        .modo-pdf .match-card::after { display: none; }
-        .modo-pdf .goles-display { font-weight: bold; font-size: 16px; color: black; margin: 0 10px; }
-        .modo-pdf table { border: 1px solid #ccc !important; }
-        .modo-pdf th { background: #f2f2f2 !important; color: black !important; border: 1px solid #ccc !important; }
-        .modo-pdf td { color: black !important; border: 1px solid #eee !important; }
-        .modo-pdf .col-pts { background: #f9f9f9 !important; font-weight: bold; }
-        .modo-pdf .descansa { color: #999 !important; }
+        /* ESTILOS BLINDADOS PARA PDF */
+        .modo-pdf { background: white !important; color: black !important; padding: 20px !important; }
+        .modo-pdf * { color: black !important; text-shadow: none !important; }
+        .modo-pdf .match-card { background: white !important; border: 1px solid #ccc !important; }
+        .modo-pdf table { border: 2px solid #000 !important; }
+        .modo-pdf th { background: #e0e0e0 !important; color: black !important; border: 1px solid #000 !important; font-weight: bold !important; }
+        .modo-pdf td { background: white !important; color: black !important; border: 1px solid #000 !important; }
+        .modo-pdf .fecha-titulo { background: #f0f0f0 !important; border: 1px solid #ccc !important; }
+        .modo-pdf .goles-display { font-weight: bold; font-size: 16px; margin: 0 10px; }
+        .salto-pagina { page-break-before: always; }
+        
+        .btn-opcion { background: #222; color: white; width: 48%; border: 1px solid var(--neon-blue); }
     </style>
 </head>
 <body>
 
-    <h1>PRO FIXTURE GEN</h1>
-    <div class="autor">DESARROLLADO POR WILTON VIDAL</div>
-
-    <div id="pantallaSetup" class="panel">
-        <div class="ingreso-equipo">
-            <input type="text" id="nombreEquipo" placeholder="Nuevo equipo...">
-            <button class="btn-add" onclick="agregarEquipo()">+</button>
+    <div id="pantallaLogin" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-dark); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+        <h1>PRO FIXTURE GEN</h1>
+        <div class="autor">LICENCIA DE WILTON VIDAL</div>
+        
+        <div class="panel" style="text-align: center; width: 85%; padding: 30px;">
+            <p style="color: #ccc; font-size: 14px; margin-bottom: 20px;">Ingrese sus credenciales para acceder:</p>
+            
+            <input type="email" id="correoAcceso" placeholder="Correo del cliente..." style="text-align: center; margin-bottom: 10px; font-size: 16px; width: 100%; box-sizing: border-box;">
+            <input type="password" id="claveAcceso" placeholder="Contraseña..." style="text-align: center; margin-bottom: 15px; font-size: 16px; width: 100%; box-sizing: border-box;">
+            
+            <button onclick="iniciarSesionFirebase()" class="btn-main" id="btnIngresar">ENTRAR AL SISTEMA</button>
+            <p id="errorClave" style="color: var(--neon-pink); font-size: 13px; display: none; margin-top: 15px; font-weight: bold;">Acceso denegado. Verifique sus datos.</p>
         </div>
-        <ul id="listaInscritos"></ul>
-        <div class="config-fila" style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; font-size:14px;">
-            <label>Inscritos: <b id="contEq" style="color:var(--neon-blue)">0</b></label>
-            <div>
-                <label>Series:</label>
-                <input type="number" id="numSeries" value="2" min="1" style="width:40px; background:#000; color:white; border:1px solid #444; padding:5px; text-align:center;">
-            </div>
-        </div>
-        <button class="btn-main" onclick="generarSistema()">Generar Software de Torneo</button>
     </div>
 
-    <div id="pantallaGestion" style="display:none; width:100%; display:flex; flex-direction:column; align-items:center;">
-        <div class="panel" style="margin-top:0;">
-            <button onclick="exportarPDF()" style="width:100%; background:#1a1a3a; color:var(--neon-blue); border:1px solid #333; padding:12px;">📥 DESCARGAR REPORTE OFICIAL (PDF BLANCO)</button>
+    <div id="pantallaPrincipal" style="display: none; width: 100%; flex-direction: column; align-items: center;">
+        <h1>PRO FIXTURE GEN</h1>
+        <div class="autor">DESARROLLADO POR WILTON VIDAL</div>
+        
+        <button onclick="cerrarSesion()" style="background: transparent; color: var(--neon-pink); border: 1px solid var(--neon-pink); padding: 5px 10px; font-size: 10px; margin-bottom: 15px;">Cerrar Sesión</button>
+
+        <div id="pantallaSetup" class="panel">
+            <div class="ingreso-equipo">
+                <input type="text" id="nombreEquipo" placeholder="Nuevo equipo...">
+                <button class="btn-add" onclick="agregarEquipo()">+</button>
+            </div>
+            <ul id="listaInscritos"></ul>
+            <div style="display:flex; justify-content:space-between; margin-top:10px; align-items: center;">
+                <label style="font-size: 14px;">Inscritos: <b id="contEq" style="color:var(--neon-blue)">0</b></label>
+                <div>Series: <input type="number" id="numSeries" value="1" min="1" style="width:40px; padding:5px; text-align:center;"></div>
+            </div>
+            <button class="btn-main" onclick="generarSistema()">GENERAR TORNEO COMPLETO</button>
         </div>
-        <div id="contenedorTorneo" style="width:100%; display:flex; flex-direction:column; align-items:center;"></div>
+
+        <div id="pantallaGestion" style="display:none; width:100%; flex-direction:column; align-items:center;">
+            <button onclick="exportarPDF()" style="width:95%; max-width:500px; background:#1a1a3a; color:var(--neon-blue); border:1px solid #333; padding:15px; margin-bottom:15px;">📥 IMPRIMIR REPORTE (PDF OFICIAL)</button>
+            <div id="contenedorTorneo" style="width:100%; display:flex; flex-direction:column; align-items:center;"></div>
+            <button class="btn-dorado" style="width: 95%; max-width: 500px;" onclick="mostrarMenuPlayoffs()">🏆 CREAR FASE FINAL (PLAYOFFS)</button>
+            <div id="panelPlayoffs" class="panel" style="display:none; margin-top:15px;">
+                <h3 style="color:#ffaa00; text-align:center; margin-top:0;">MODO FASE FINAL</h3>
+                <div style="display:flex; justify-content:space-between;">
+                    <button class="btn-opcion" onclick="generarPlayoffs('auto')">Automático (Líderes)</button>
+                    <button class="btn-opcion" onclick="generarPlayoffs('manual')">Manual (Llaves)</button>
+                </div>
+                <div id="llavesPlayoff" style="margin-top:15px;"></div>
+            </div>
+        </div>
     </div>
 
 <script>
-    /*******************************************************
-     * SOFTWARE DE GESTIÓN DEPORTIVA - WILTON VIDAL
-     *******************************************************/
-    let equipos = []; // Base de datos de nombres
-    let seriesData = {}; // Base de datos de stats y partidos
+    // ==========================================
+    // 1. CONFIGURACIÓN DE FIREBASE (¡TU BÓVEDA!)
+    // ==========================================
+    
+    // REEMPLAZA ESTO CON LOS DATOS DE TU CONSOLA DE FIREBASE
+    const firebaseConfig = {
+  apiKey: "AIzaSyCfhrxTbGNrY2ra4_YYq-fywWv-piyBnfQ",
+  authDomain: "fixtures-wilt.firebaseapp.com",
+  projectId: "fixtures-wilt",
+  storageBucket: "fixtures-wilt.firebasestorage.app",
+  messagingSenderId: "115127967759",
+  appId: "1:115127967759:web:ed9c2586076ff8370e437a"
+};
+
+    // Inicializar Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    // ==========================================
+    // 2. SISTEMA DE LOGIN BLINDADO
+    // ==========================================
+    
+    function iniciarSesionFirebase() {
+        const email = document.getElementById('correoAcceso').value.trim();
+        const password = document.getElementById('claveAcceso').value;
+        const btn = document.getElementById('btnIngresar');
+        const errorMsg = document.getElementById('errorClave');
+        
+        if(!email || !password) {
+            errorMsg.innerText = "Por favor ingrese correo y clave.";
+            errorMsg.style.display = "block";
+            return;
+        }
+
+        btn.innerText = "VERIFICANDO...";
+        
+        auth.signInWithEmailAndPassword(email, password)
+            .then((userCredential) => {
+                // ¡Éxito! Firebase confirma que es un cliente de pago
+                document.getElementById('pantallaLogin').style.display = "none";
+                document.getElementById('pantallaPrincipal').style.display = "flex";
+                errorMsg.style.display = "none";
+                btn.innerText = "ENTRAR AL SISTEMA";
+            })
+            .catch((error) => {
+                // ¡Hackeo denegado!
+                errorMsg.innerText = "Usuario o contraseña incorrectos.";
+                errorMsg.style.display = "block";
+                btn.innerText = "ENTRAR AL SISTEMA";
+            });
+    }
+
+    function cerrarSesion() {
+        auth.signOut().then(() => {
+            document.getElementById('pantallaLogin').style.display = "flex";
+            document.getElementById('pantallaPrincipal').style.display = "none";
+            document.getElementById('correoAcceso').value = "";
+            document.getElementById('claveAcceso').value = "";
+            
+            // Reiniciar app al salir
+            equipos = [];
+            seriesData = {};
+            document.getElementById('listaInscritos').innerHTML = "";
+            document.getElementById('contEq').innerText = "0";
+            document.getElementById('pantallaSetup').style.display = "block";
+            document.getElementById('pantallaGestion').style.display = "none";
+        });
+    }
+
+    // ==========================================
+    // 3. TODO EL CÓDIGO DEL TORNEO (Round Robin, PDF, Tablas)
+    // ==========================================
+    let equipos = [];
+    let seriesData = {};
 
     function agregarEquipo() {
         const input = document.getElementById('nombreEquipo');
@@ -106,196 +196,162 @@
 
     function generarSistema() {
         if (equipos.length < 2) return alert("Inscribe al menos 2 equipos.");
-        
         const nS = parseInt(document.getElementById('numSeries').value);
-        const contTorneo = document.getElementById('contenedorTorneo');
-        
-        // Cambio de pantalla
         document.getElementById('pantallaSetup').style.display = "none";
         document.getElementById('pantallaGestion').style.display = "flex";
-        contTorneo.innerHTML = "";
         
-        // Mezcla y división en series
         let mezclados = [...equipos].sort(() => Math.random() - 0.5);
         seriesData = {};
 
-        // Inicializar estructura de series y stats PRO
         for(let i=0; i<nS; i++) {
-            let letra = String.fromCharCode(65+i);
-            seriesData[letra] = { 
-                equipos: [], // Aquí van los objetos con stats
-                partidos: [] 
-            };
+            seriesData[String.fromCharCode(65+i)] = { equipos: [], partidos: [] };
         }
 
         mezclados.forEach((eq, i) => {
             let letra = String.fromCharCode(65 + (i % nS));
-            // OBJETO DE EQUIPO NIVEL PRO
-            seriesData[letra].equipos.push({
-                nombre: eq, 
-                pj:0, pg:0, pe:0, pp:0, // Partidos
-                gf:0, gc:0, dg:0,      // Goles
-                pts:0                  // Puntos
-            });
+            seriesData[letra].equipos.push({nombre: eq, pj:0, pg:0, pe:0, pp:0, gf:0, gc:0, dg:0, pts:0});
         });
 
-        // Dibujar Fixture y Tablas en la pantalla
-        for(let letra in seriesData) {
-            let html = `<div class="seccion-titulo">⚡ SERIE ${letra} - FIXTURE E INGRESO ⚡</div>`;
-            let gr = seriesData[letra].equipos;
-            
-            // --- GENERAR FIXTURE CON INPUTS ---
-            for(let i=0; i<gr.length; i+=2) {
-                if(gr[i+1]) {
-                    // ID único para cada input de goles: gL_A_0 (Goles Local, Serie A, Partido 0)
-                    html += `
-                    <div class="match-card">
-                        <span class="team-name" style="text-align:right;">${gr[i].nombre}</span>
-                        <input type="number" class="goles-input local" id="gL_${letra}_${i}" min="0" onchange="recalcularTodo('${letra}')">
-                        <span class="vs">VS</span>
-                        <input type="number" class="goles-input visita" id="gV_${letra}_${i}" min="0" onchange="recalcularTodo('${letra}')">
-                        <span class="team-name" style="text-align:left;">${gr[i+1].nombre}</span>
-                    </div>`;
-                    // Guardar referencia del partido
-                    seriesData[letra].partidos.push({locIdx: i, visIdx: i+1});
-                } else {
-                    html += `<div class="match-card"><span class="team-name descansa" style="width:100%; text-align:center; color:#555;">${gr[i].nombre} - DESCANSA</span></div>`;
-                }
-            }
+        dibujarPantalla();
+    }
 
-            // --- GENERAR TABLA TOTAL STATS ---
+    function dibujarPantalla() {
+        const cont = document.getElementById('contenedorTorneo');
+        cont.innerHTML = "";
+
+        for(let letra in seriesData) {
+            let html = `<div class="seccion-fixture"><div class="seccion-titulo" style="max-width:100%;">⚡ SERIE ${letra} - ROL DE PARTIDOS ⚡</div>`;
+            
+            let eqRefs = [...seriesData[letra].equipos];
+            if (eqRefs.length % 2 !== 0) eqRefs.push({nombre: "DESCANSA", descansa: true});
+            
+            let totalFechas = eqRefs.length - 1;
+            let mitad = eqRefs.length / 2;
+            let matchID = 0;
+
+            for (let f = 0; f < totalFechas; f++) {
+                html += `<div class="fecha-titulo">JORNADA / FECHA ${f+1}</div>`;
+                for (let i = 0; i < mitad; i++) {
+                    let eqL = eqRefs[i];
+                    let eqV = eqRefs[eqRefs.length - 1 - i];
+
+                    if(!eqL.descansa && !eqV.descansa) {
+                        let idxL = seriesData[letra].equipos.findIndex(e => e.nombre === eqL.nombre);
+                        let idxV = seriesData[letra].equipos.findIndex(e => e.nombre === eqV.nombre);
+                        
+                        html += `
+                        <div class="match-card">
+                            <span class="team-name" style="text-align:right;">${eqL.nombre}</span>
+                            <input type="number" class="goles-input local" id="gL_${letra}_${matchID}" min="0" onchange="recalcular('${letra}')">
+                            <span style="font-size:12px; color:#666; font-style:italic;">VS</span>
+                            <input type="number" class="goles-input visita" id="gV_${letra}_${matchID}" min="0" onchange="recalcular('${letra}')">
+                            <span class="team-name" style="text-align:left;">${eqV.nombre}</span>
+                        </div>`;
+                        
+                        seriesData[letra].partidos.push({ locIdx: idxL, visIdx: idxV, matchID: matchID });
+                        matchID++;
+                    } else {
+                        let libre = eqL.descansa ? eqV.nombre : eqL.nombre;
+                        html += `<div class="match-card" style="justify-content:center; color:#555; font-size:12px;">${libre} - LIBRE (DESCANSA)</div>`;
+                    }
+                }
+                eqRefs.splice(1, 0, eqRefs.pop());
+            }
+            html += `</div>`;
+            html += `<div class="salto-pagina"></div>`;
             html += `
-            <div class="seccion-titulo">📊 TABLA DE POSICIONES SERIE ${letra} 📊</div>
-            <div class="tabla-contenedor" id="tabla_${letra}">
-                <table class="tabla-pro">
-                    <thead>
-                        <tr>
-                            <th class="txt-left">Equipo</th>
-                            <th>PJ</th><th>PG</th><th>PE</th><th>PP</th>
-                            <th>GF</th><th>GC</th><th>DG</th>
-                            <th class="col-pts">PTS</th>
-                        </tr>
-                    </thead>
-                    <tbody id="body_${letra}">
-                        ${gr.map(e => `<tr><td class="txt-left">${e.nombre}</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td class="col-pts">0</td></tr>`).join('')}
-                    </tbody>
-                </table>
+            <div class="seccion-tabla" style="width:100%; display:flex; flex-direction:column; align-items:center;">
+                <div class="seccion-titulo" style="max-width:100%;">📊 TABLA DE POSICIONES SERIE ${letra}</div>
+                <div class="tabla-contenedor">
+                    <table>
+                        <thead><tr><th class="txt-left">Equipo</th><th>PJ</th><th>PG</th><th>PE</th><th>PP</th><th>GF</th><th>GC</th><th>DG</th><th class="col-pts">PTS</th></tr></thead>
+                        <tbody id="body_${letra}">
+                            ${seriesData[letra].equipos.map(e => `<tr><td class="txt-left">${e.nombre}</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td class="col-pts">0</td></tr>`).join('')}
+                        </tbody>
+                    </table>
+                </div>
             </div>`;
-            contTorneo.innerHTML += html;
+            cont.innerHTML += html;
         }
     }
 
-    // EL "CEREBRO" DEL SISTEMA: RECALCULA PJ, PTS, GF, GC, DG
-    function recalcularTodo(letra) {
-        let data = seriesData[letra];
-        let gr = data.equipos;
-        let ptsWin = 3, ptsEmp = 1; // Configuración estándar
+    function recalcular(letra) {
+        let gr = seriesData[letra].equipos;
+        gr.forEach(e => { e.pj=0; e.pg=0; e.pe=0; e.pp=0; e.gf=0; e.gc=0; e.dg=0; e.pts=0; });
 
-        // 1. Reiniciar todos los stats a cero antes de volver a contar
-        gr.forEach(e => { 
-            e.pj=0; e.pg=0; e.pe=0; e.pp=0; 
-            e.gf=0; e.gc=0; e.dg=0; e.pts=0; 
-        });
+        seriesData[letra].partidos.forEach(p => {
+            let gL = parseInt(document.getElementById(`gL_${letra}_${p.matchID}`).value);
+            let gV = parseInt(document.getElementById(`gV_${letra}_${p.matchID}`).value);
 
-        // 2. Recorrer los partidos cargados en pantalla
-        data.partidos.forEach(p => {
-            let inputL = document.getElementById(`gL_${letra}_${p.locIdx}`);
-            let inputV = document.getElementById(`gV_${letra}_${p.locIdx}`);
-            
-            let gL = parseInt(inputL.value);
-            let gV = parseInt(inputV.value);
-
-            // Solo procesar si ambos campos tienen números
             if(!isNaN(gL) && !isNaN(gV)) {
-                let eqL = gr[p.locIdx];
-                let eqV = gr[p.visIdx];
-
-                // Sumar Goles y Partidos Jugados
-                eqL.pj++; eqV.pj++;
-                eqL.gf += gL; eqL.gc += gV;
-                eqV.gf += gV; eqV.gc += gL;
-
-                // Lógica de Puntos y Resultados (W/D/L)
-                if(gL > gV) { // Gana Local
-                    eqL.pg++; eqL.pts += ptsWin;
-                    eqV.pp++;
-                } else if(gL < gV) { // Gana Visita
-                    eqV.pg++; eqV.pts += ptsWin;
-                    eqL.pp++;
-                } else { // Empate
-                    eqL.pe++; eqL.pts += ptsEmp;
-                    eqV.pe++; eqV.pts += ptsEmp;
-                }
+                let eqL = gr[p.locIdx], eqV = gr[p.visIdx];
+                eqL.pj++; eqV.pj++; eqL.gf+=gL; eqL.gc+=gV; eqV.gf+=gV; eqV.gc+=gL;
+                if(gL > gV) { eqL.pg++; eqL.pts+=3; eqV.pp++; }
+                else if(gL < gV) { eqV.pg++; eqV.pts+=3; eqL.pp++; }
+                else { eqL.pe++; eqL.pts+=1; eqV.pe++; eqV.pts+=1; }
             }
         });
 
-        // 3. Calcular Diferencia de Goles y ORDENAR (PTS -> DG -> GF)
         gr.forEach(e => { e.dg = e.gf - e.gc; });
-        gr.sort((a,b) => b.pts - a.pts || b.dg - a.dg || b.gf - a.gf);
-
-        // 4. Actualizar visualmente la tabla en pantalla
-        let body = document.getElementById(`body_${letra}`);
-        body.innerHTML = gr.map(e => `
-            <tr>
-                <td class="txt-left">${e.nombre}</td>
-                <td>${e.pj}</td><td>${e.pg}</td><td>${e.pe}</td><td>${e.pp}</td>
-                <td>${e.gf}</td><td>${e.gc}</td>
-                <td style="color:${e.dg>0?'#0f0':(e.dg<0?'#f00':'#ccc')}">${e.dg>0?'+'+e.dg:e.dg}</td>
-                <td class="col-pts">${e.pts}</td>
-            </tr>
+        let ranking = [...gr].sort((a,b) => b.pts - a.pts || b.dg - a.dg || b.gf - a.gf);
+        
+        document.getElementById(`body_${letra}`).innerHTML = ranking.map(e => `
+            <tr><td class="txt-left">${e.nombre}</td><td>${e.pj}</td><td>${e.pg}</td><td>${e.pe}</td><td>${e.pp}</td><td>${e.gf}</td><td>${e.gc}</td><td style="color:${e.dg>0?'#0f0':(e.dg<0?'#f00':'#ccc')}">${e.dg>0?'+'+e.dg:e.dg}</td><td class="col-pts">${e.pts}</td></tr>
         `).join('');
     }
 
-    // FUNCIÓN DE EXPORTACIÓN LIMPIA (PDF BLANCO)
+    function mostrarMenuPlayoffs() { document.getElementById('panelPlayoffs').style.display = "block"; }
+    
+    function generarPlayoffs(modo) {
+        let cont = document.getElementById('llavesPlayoff');
+        let html = `<div class="seccion-titulo" style="text-align:center;">🏆 ENCUENTRO FINAL 🏆</div>`;
+        
+        if(modo === 'auto') {
+            let lideres = [];
+            for(let letra in seriesData) {
+                let ranking = [...seriesData[letra].equipos].sort((a,b) => b.pts - a.pts || b.dg - a.dg);
+                lideres.push(ranking[0].nombre);
+            }
+            if(lideres.length < 2) return alert("Necesitas al menos 2 series para el modo automático.");
+            html += `<div class="match-card" style="border: 1px solid #ffaa00; margin:0 auto;"><span class="team-name" style="text-align:right">${lideres[0]}</span><span style="color:#ffaa00; font-weight:bold;">VS</span><span class="team-name" style="text-align:left">${lideres[1]}</span></div>`;
+        } 
+        else if(modo === 'manual') {
+            let options = equipos.map(e => `<option value="${e}">${e}</option>`).join('');
+            html += `
+            <div class="match-card" style="margin:0 auto;">
+                <select style="width:40%; font-size:12px; padding:8px;"><option value="">Selecciona...</option>${options}</select>
+                <span style="font-weight:bold; font-size:12px;">VS</span>
+                <select style="width:40%; font-size:12px; padding:8px;"><option value="">Selecciona...</option>${options}</select>
+            </div>`;
+        }
+        cont.innerHTML = html;
+    }
+
     function exportarPDF() {
         const fuente = document.getElementById('contenedorTorneo');
-        
-        // Crear un clon temporal para manipular el diseño sin romper la pantalla
         const clon = fuente.cloneNode(true);
-        
-        // Crear el contenedor del documento oficial
         const docPDF = document.createElement('div');
-        docPDF.className = "modo-pdf"; // Aplica los estilos de impresión
+        docPDF.className = "modo-pdf"; 
+        
         docPDF.innerHTML = `
-            <div style="text-align:center; margin-bottom:20px;">
-                <h2 style="margin:0;">REPORTE OFICIAL DE CAMPEONATO</h2>
-                <div class="autor" style="margin-top:5px;">SISTEMA DESARROLLADO POR WILTON VIDAL</div>
-                <div style="font-size:12px; margin-top:10px;">Generado el: ${new Date().toLocaleDateString()}</div>
-            </div>
-        `;
+            <div style="text-align:center; margin-bottom:30px;">
+                <h2 style="margin:0; font-size:24px;">REPORTE OFICIAL DEL TORNEO</h2>
+                <div style="font-weight:bold; margin-top:5px; font-size:12px;">SISTEMA DESARROLLADO POR WILTON VIDAL</div>
+            </div>`;
         docPDF.appendChild(clon);
         
-        // TRUCO PRO: Reemplazar inputs de goles por texto simple para el PDF
         docPDF.querySelectorAll('.match-card').forEach(card => {
             let inputL = card.querySelector('.goles-input.local');
             let inputV = card.querySelector('.goles-input.visita');
-            
             if(inputL && inputV) {
-                // Crear Spans con los goles actuales
-                let spanL = document.createElement('span');
-                spanL.className = "goles-display";
-                spanL.innerText = inputL.value || "0";
-                
-                let spanV = document.createElement('span');
-                spanV.className = "goles-display";
-                spanV.innerText = inputV.value || "0";
-
-                // Reemplazar inputs por spans
-                inputL.parentNode.replaceChild(spanL, inputL);
-                inputV.parentNode.replaceChild(spanV, inputV);
+                let sL = document.createElement('span'); sL.className = "goles-display"; sL.innerText = inputL.value || " - ";
+                let sV = document.createElement('span'); sV.className = "goles-display"; sV.innerText = inputV.value || " - ";
+                inputL.parentNode.replaceChild(sL, inputL);
+                inputV.parentNode.replaceChild(sV, inputV);
             }
         });
 
-        // Configuración de html2pdf
-        const opt = {
-            margin:       10,
-            filename:     'Reporte_Torneo_WiltonVidal.pdf',
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2, logging: false },
-            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
-
-        // Ejecutar exportación
+        const opt = { margin: 10, filename: 'Torneo_WiltonVidal.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
         html2pdf().from(docPDF).set(opt).save();
     }
 </script>
