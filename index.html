@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Fixture Pro - by WILTON VIDAL</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+        :root {
+            --neon-blue: #00d4ff;
+            --neon-pink: #ff0055;
+            --bg-dark: #010103;
+            --text-color: #ffffff;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-color);
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* TÍTULO Y TU FIRMA */
+        h1 { font-size: 28px; color: var(--neon-blue); text-shadow: 0 0 15px var(--neon-blue); margin: 15px 0 5px 0; }
+        
+        .autor-firma {
+            font-size: 12px;
+            color: var(--neon-pink);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 0 0 8px var(--neon-pink);
+            margin-bottom: 25px;
+            font-weight: bold;
+        }
+
+        .panel-control {
+            background: #0a0a1a;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #1a1a3a;
+            width: 95%;
+            max-width: 500px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            margin-bottom: 20px;
+        }
+
+        .ingreso-equipo { display: flex; gap: 8px; margin-bottom: 15px; }
+
+        input#nombreEquipo {
+            flex-grow: 1;
+            background: #000;
+            border: 1px solid #333;
+            color: white;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+
+        .btn-add {
+            background: #222;
+            color: white;
+            border: 1px solid var(--neon-blue);
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        #listaInscritos {
+            list-style: none;
+            padding: 0;
+            margin: 10px 0;
+            max-height: 150px;
+            overflow-y: auto;
+            background: rgba(255,255,255,0.03);
+            border-radius: 6px;
+        }
+
+        #listaInscritos li {
+            padding: 10px;
+            border-bottom: 1px solid #222;
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+        }
+
+        .btn-borrar { color: var(--neon-pink); background: none; border: none; cursor: pointer; font-weight: bold; }
+
+        .config-fila { display: flex; justify-content: space-between; align-items: center; margin: 12px 0; font-size: 14px; }
+
+        input[type="number"] {
+            background: #000;
+            border: 1px solid var(--neon-blue);
+            color: white;
+            padding: 8px;
+            border-radius: 5px;
+            width: 55px;
+            text-align: center;
+        }
+
+        .btn-generar {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, #0055ff, #00aaff);
+            border: none;
+            color: white;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 8px;
+            font-size: 16px;
+            box-shadow: 0 4px 15px rgba(0, 85, 255, 0.4);
+        }
+
+        .btn-exportar {
+            width: 100%;
+            padding: 12px;
+            background: #111;
+            border: 1px solid #333;
+            color: #00d4ff;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        /* DISEÑO DE RESULTADOS */
+        .pantalla-exportar { width: 100%; max-width: 500px; }
+
+        .serie-header {
+            font-size: 18px;
+            color: #fff;
+            border-left: 4px solid var(--neon-pink);
+            padding-left: 12px;
+            margin: 35px 0 15px 0;
+            text-align: left;
+            text-transform: uppercase;
+        }
+
+        .match-card {
+            background: linear-gradient(90deg, #050515 0%, #001233 50%, #050515 100%);
+            border: 1px solid #1a1a3a;
+            margin: 12px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px;
+            border-radius: 6px;
+            position: relative;
+        }
+
+        .match-card::after {
+            content: '';
+            position: absolute;
+            left: 0; bottom: 0;
+            width: 100%; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--neon-blue), transparent);
+        }
+
+        .team-name { width: 42%; font-size: 14px; text-transform: uppercase; font-weight: bold; }
+
+        .vs-circle {
+            background: #fff;
+            color: #000;
+            width: 30px; height: 30px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 900; font-style: italic; font-size: 13px;
+        }
+
+        /* TABLA PRO */
+        .tabla-contenedor { width: 100%; overflow-x: auto; margin-top: 10px; background: #050510; border-radius: 8px; border: 1px solid #222; }
+        .tabla-pro { width: 100%; border-collapse: collapse; font-size: 11px; text-align: center; }
+        .tabla-pro th { background-color: #111; color: var(--neon-blue); padding: 10px; }
+        .tabla-pro td { border-bottom: 1px solid #222; padding: 10px; color: #ccc; }
+        .col-equipo { text-align: left; width: 35%; font-weight: bold; }
+
+        @media print {
+            body { background: white; color: black; }
+            .panel-control { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>PRO FIXTURE GEN</h1>
+    <div class="autor-firma">Desarrollado por WILTON VIDAL</div>
+    
+    <div class="panel-control">
+        <div class="ingreso-equipo">
+            <input type="text" id="nombreEquipo" placeholder="Nombre del equipo...">
+            <button class="btn-add" onclick="agregarEquipo()">+</button>
+        </div>
+
+        <ul id="listaInscritos"></ul>
+        
+        <div class="config-fila">
+            <label>Equipos inscritos:</label>
+            <span id="contadorEquipos" style="color: var(--neon-blue); font-weight: bold;">0</span>
+        </div>
+
+        <div class="config-fila">
+            <label>Número de Series:</label>
+            <input type="number" id="numSeries" value="2" min="1">
+        </div>
+        
+        <button class="btn-generar" onclick="procesarTorneo()">Generar Software de Torneo</button>
+        <button id="btnExportar" class="btn-exportar" onclick="exportarAPDF()">📥 Descargar Fixture (PDF)</button>
+    </div>
+
+    <div id="pantallaResultados" class="pantalla-exportar"></div>
+
+    <script>
+        /*******************************************************
+         * SOFTWARE DESARROLLADO POR WILTON VIDAL
+         *******************************************************/
+        let listaEquiposBase = [];
+
+        function agregarEquipo() {
+            const input = document.getElementById('nombreEquipo');
+            const nombre = input.value.trim();
+            if (!nombre || listaEquiposBase.includes(nombre)) return;
+
+            listaEquiposBase.push(nombre);
+            input.value = "";
+            input.focus();
+            renderLista();
+        }
+
+        function renderLista() {
+            const listaUL = document.getElementById('listaInscritos');
+            const contador = document.getElementById('contadorEquipos');
+            listaUL.innerHTML = "";
+            contador.innerText = listaEquiposBase.length;
+            listaEquiposBase.forEach((equipo, index) => {
+                listaUL.innerHTML += `<li>${equipo} <button class="btn-borrar" onclick="borrarEquipo(${index})">✕</button></li>`;
+            });
+        }
+
+        function borrarEquipo(index) {
+            listaEquiposBase.splice(index, 1);
+            renderLista();
+        }
+
+        function procesarTorneo() {
+            const nSeries = parseInt(document.getElementById('numSeries').value);
+            const contenedor = document.getElementById('pantallaResultados');
+            const btnExportar = document.getElementById('btnExportar');
+            
+            if (listaEquiposBase.length < 2) return alert("Inscribe más equipos");
+
+            contenedor.innerHTML = "";
+            let equiposMezclados = [...listaEquiposBase].sort(() => Math.random() - 0.5);
+            let series = Array.from({ length: nSeries }, () => []);
+            equiposMezclados.forEach((eq, i) => series[i % nSeries].push(eq));
+
+            series.forEach((grupo, idx) => {
+                const letra = String.fromCharCode(65 + idx);
+                let html = `<div class="serie-header">⚡ SERIE ${letra} - FIXTURE ⚡</div>`;
+                
+                for (let i = 0; i < grupo.length; i += 2) {
+                    let loc = grupo[i];
+                    let vis = grupo[i+1] || '<span style="color:#444">DESCANSA</span>';
+                    html += `<div class="match-card">
+                                <div class="team-name" style="text-align:right">${loc}</div>
+                                <div class="vs-circle">VS</div>
+                                <div class="team-name" style="text-align:left">${vis}</div>
+                             </div>`;
+                }
+
+                html += `<div class="serie-header">📊 TABLA DE POSICIONES ${letra} 📊</div>
+                         <div class="tabla-contenedor">
+                            <table class="tabla-pro">
+                                <thead><tr><th class="col-equipo">Equipo</th><th>PJ</th><th>PG</th><th>PE</th><th>PP</th><th>GF</th><th>GC</th><th>PTS</th></tr></thead>
+                                <tbody>${grupo.map(e => `<tr><td class="col-equipo">${e}</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td style="color:white;font-weight:bold">0</td></tr>`).join('')}</tbody>
+                            </table>
+                         </div>`;
+                contenedor.innerHTML += html;
+            });
+            btnExportar.style.display = "block";
+        }
+
+        function exportarAPDF() {
+            const elemento = document.getElementById('pantallaResultados');
+            const opt = {
+                margin: 10,
+                filename: 'Software_Wilton_Vidal.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            html2pdf().from(elemento).set(opt).save();
+        }
+    </script>
+</body>
+</html>
