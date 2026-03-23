@@ -6,7 +6,6 @@
     <title>Sistema de Gestión Deportiva - WILTON VIDAL</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
 
@@ -32,8 +31,8 @@
         .fecha-titulo { font-size: 14px; color: var(--neon-blue); text-align: center; margin: 15px 0 5px 0; font-weight: bold; background: #111; padding: 5px; border-radius: 5px; }
         
         .match-card { background: var(--card-bg); border: 1px solid #1a1a3a; padding: 12px; margin: 8px 0; border-radius: 6px; display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 550px; box-sizing: border-box; }
-        .team-name { width: 38%; font-size: 12px; font-weight: bold; text-transform: uppercase; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-        .goles-input { width: 35px; padding: 5px; text-align: center; background: #000; color: var(--neon-blue); border: 1px solid var(--neon-blue); font-weight: bold; font-size: 14px; border-radius: 4px; }
+        .team-name { width: 35%; font-size: 12px; font-weight: bold; text-transform: uppercase; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+        .goles-input { width: 30px; padding: 5px; text-align: center; background: #000; color: var(--neon-blue); border: 1px solid var(--neon-blue); font-weight: bold; font-size: 14px; border-radius: 4px; }
         
         .tabla-contenedor { width: 100%; max-width: 550px; overflow-x: auto; background: #050510; border-radius: 8px; border: 1px solid #222; margin-bottom: 20px; }
         table { width: 100%; border-collapse: collapse; font-size: 11px; min-width: 400px; }
@@ -42,18 +41,23 @@
         .txt-left { text-align: left; padding-left: 10px; color: white; font-weight: bold; }
         .col-pts { font-weight: bold; color: white; font-size: 12px; background: rgba(0,212,255,0.05); }
 
-        /* ESTILOS BLINDADOS PARA PDF */
+        /* ESTILOS BLINDADOS PARA PDF INTELIGENTE */
         .modo-pdf { background: white !important; color: black !important; padding: 20px !important; }
         .modo-pdf * { color: black !important; text-shadow: none !important; }
         .modo-pdf .match-card { background: white !important; border: 1px solid #ccc !important; }
-        .modo-pdf table { border: 2px solid #000 !important; }
+        .modo-pdf table { border: 2px solid #000 !important; width: 100% !important; }
         .modo-pdf th { background: #e0e0e0 !important; color: black !important; border: 1px solid #000 !important; font-weight: bold !important; }
         .modo-pdf td { background: white !important; color: black !important; border: 1px solid #000 !important; }
         .modo-pdf .fecha-titulo { background: #f0f0f0 !important; border: 1px solid #ccc !important; }
-        .modo-pdf .goles-display { font-weight: bold; font-size: 16px; margin: 0 10px; }
+        
+        /* MAGIA PARA IMPRESIÓN A 2 COLUMNAS Y HOJAS SEPARADAS */
+        .pdf-columnas { column-count: 2; column-gap: 30px; }
+        .pdf-columnas .seccion-fixture { break-inside: avoid; margin-bottom: 20px; }
         .salto-pagina { page-break-before: always; }
         
         .btn-opcion { background: #222; color: white; width: 48%; border: 1px solid var(--neon-blue); }
+        .btn-bloquear { background: #00d4ff; color: black; border: none; padding: 5px; border-radius: 3px; cursor: pointer; font-size: 12px; }
+        .btn-editar { background: #ffaa00; color: black; border: none; padding: 5px; border-radius: 3px; cursor: pointer; font-size: 10px; margin-left: 5px; }
     </style>
 </head>
 <body>
@@ -61,13 +65,10 @@
     <div id="pantallaLogin" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-dark); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center;">
         <h1>PRO FIXTURE GEN</h1>
         <div class="autor">LICENCIA DE WILTON VIDAL</div>
-        
         <div class="panel" style="text-align: center; width: 85%; padding: 30px;">
             <p style="color: #ccc; font-size: 14px; margin-bottom: 20px;">Ingrese sus credenciales para acceder:</p>
-            
             <input type="email" id="correoAcceso" placeholder="Correo del cliente..." style="text-align: center; margin-bottom: 10px; font-size: 16px; width: 100%; box-sizing: border-box;">
             <input type="password" id="claveAcceso" placeholder="Contraseña..." style="text-align: center; margin-bottom: 15px; font-size: 16px; width: 100%; box-sizing: border-box;">
-            
             <button onclick="iniciarSesionFirebase()" class="btn-main" id="btnIngresar">ENTRAR AL SISTEMA</button>
             <p id="errorClave" style="color: var(--neon-pink); font-size: 13px; display: none; margin-top: 15px; font-weight: bold;">Acceso denegado. Verifique sus datos.</p>
         </div>
@@ -76,7 +77,6 @@
     <div id="pantallaPrincipal" style="display: none; width: 100%; flex-direction: column; align-items: center;">
         <h1>PRO FIXTURE GEN</h1>
         <div class="autor">DESARROLLADO POR WILTON VIDAL</div>
-        
         <button onclick="cerrarSesion()" style="background: transparent; color: var(--neon-pink); border: 1px solid var(--neon-pink); padding: 5px 10px; font-size: 10px; margin-bottom: 15px;">Cerrar Sesión</button>
 
         <div id="pantallaSetup" class="panel">
@@ -93,14 +93,27 @@
         </div>
 
         <div id="pantallaGestion" style="display:none; width:100%; flex-direction:column; align-items:center;">
-            <button onclick="exportarPDF()" style="width:95%; max-width:500px; background:#1a1a3a; color:var(--neon-blue); border:1px solid #333; padding:15px; margin-bottom:15px;">📥 IMPRIMIR REPORTE (PDF OFICIAL)</button>
-            <div id="contenedorTorneo" style="width:100%; display:flex; flex-direction:column; align-items:center;"></div>
+            <button onclick="exportarPDFProfesional()" style="width:95%; max-width:500px; background:#1a1a3a; color:var(--neon-blue); border:1px solid #333; padding:15px; margin-bottom:15px;">📥 IMPRIMIR REPORTE (PDF OFICIAL)</button>
+            
+            <div id="areaFixtures" style="width:100%; display:flex; flex-direction:column; align-items:center;"></div>
+            <div id="areaTablas" style="width:100%; display:flex; flex-direction:column; align-items:center;"></div>
+            
             <button class="btn-dorado" style="width: 95%; max-width: 500px;" onclick="mostrarMenuPlayoffs()">🏆 CREAR FASE FINAL (PLAYOFFS)</button>
+            
             <div id="panelPlayoffs" class="panel" style="display:none; margin-top:15px;">
                 <h3 style="color:#ffaa00; text-align:center; margin-top:0;">MODO FASE FINAL</h3>
+                
+                <label style="color:var(--neon-blue); font-size:12px;">Selecciona la ronda:</label>
+                <select id="rondaPlayoff" style="width:100%; margin-bottom:15px; padding:10px;">
+                    <option value="1">Final Directa (2 Equipos)</option>
+                    <option value="2">Semifinales (4 Equipos)</option>
+                    <option value="4">Cuartos de Final (8 Equipos)</option>
+                    <option value="8">Octavos de Final (16 Equipos)</option>
+                </select>
+
                 <div style="display:flex; justify-content:space-between;">
-                    <button class="btn-opcion" onclick="generarPlayoffs('auto')">Automático (Líderes)</button>
-                    <button class="btn-opcion" onclick="generarPlayoffs('manual')">Manual (Llaves)</button>
+                    <button class="btn-opcion" onclick="generarPlayoffs('auto')">Auto (Mejores)</button>
+                    <button class="btn-opcion" onclick="generarPlayoffs('manual')">Manual</button>
                 </div>
                 <div id="llavesPlayoff" style="margin-top:15px;"></div>
             </div>
@@ -109,10 +122,8 @@
 
 <script>
     // ==========================================
-    // 1. CONFIGURACIÓN DE FIREBASE (¡TU BÓVEDA!)
+    // 1. FIREBASE (PON TUS LLAVES AQUÍ WILTON)
     // ==========================================
-    
-    // REEMPLAZA ESTO CON LOS DATOS DE TU CONSOLA DE FIREBASE
     const firebaseConfig = {
   apiKey: "AIzaSyCfhrxTbGNrY2ra4_YYq-fywWv-piyBnfQ",
   authDomain: "fixtures-wilt.firebaseapp.com",
@@ -122,75 +133,43 @@
   appId: "1:115127967759:web:ed9c2586076ff8370e437a"
 };
 
-    // Inicializar Firebase
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
 
-    // ==========================================
-    // 2. SISTEMA DE LOGIN BLINDADO
-    // ==========================================
-    
     function iniciarSesionFirebase() {
-        const email = document.getElementById('correoAcceso').value.trim();
-        const password = document.getElementById('claveAcceso').value;
-        const btn = document.getElementById('btnIngresar');
-        const errorMsg = document.getElementById('errorClave');
+        const e = document.getElementById('correoAcceso').value.trim();
+        const p = document.getElementById('claveAcceso').value;
+        const b = document.getElementById('btnIngresar');
+        const err = document.getElementById('errorClave');
         
-        if(!email || !password) {
-            errorMsg.innerText = "Por favor ingrese correo y clave.";
-            errorMsg.style.display = "block";
-            return;
-        }
-
-        btn.innerText = "VERIFICANDO...";
+        if(!e || !p) { err.innerText = "Ingrese datos."; err.style.display = "block"; return; }
+        b.innerText = "VERIFICANDO...";
         
-        auth.signInWithEmailAndPassword(email, password)
-            .then((userCredential) => {
-                // ¡Éxito! Firebase confirma que es un cliente de pago
-                document.getElementById('pantallaLogin').style.display = "none";
-                document.getElementById('pantallaPrincipal').style.display = "flex";
-                errorMsg.style.display = "none";
-                btn.innerText = "ENTRAR AL SISTEMA";
-            })
-            .catch((error) => {
-                // ¡Hackeo denegado!
-                errorMsg.innerText = "Usuario o contraseña incorrectos.";
-                errorMsg.style.display = "block";
-                btn.innerText = "ENTRAR AL SISTEMA";
-            });
-    }
-
-    function cerrarSesion() {
-        auth.signOut().then(() => {
-            document.getElementById('pantallaLogin').style.display = "flex";
-            document.getElementById('pantallaPrincipal').style.display = "none";
-            document.getElementById('correoAcceso').value = "";
-            document.getElementById('claveAcceso').value = "";
-            
-            // Reiniciar app al salir
-            equipos = [];
-            seriesData = {};
-            document.getElementById('listaInscritos').innerHTML = "";
-            document.getElementById('contEq').innerText = "0";
-            document.getElementById('pantallaSetup').style.display = "block";
-            document.getElementById('pantallaGestion').style.display = "none";
+        auth.signInWithEmailAndPassword(e, p).then(() => {
+            document.getElementById('pantallaLogin').style.display = "none";
+            document.getElementById('pantallaPrincipal').style.display = "flex";
+            err.style.display = "none"; b.innerText = "ENTRAR";
+        }).catch(() => {
+            err.innerText = "Datos incorrectos."; err.style.display = "block"; b.innerText = "ENTRAR";
         });
     }
 
+    function cerrarSesion() { auth.signOut().then(() => location.reload()); }
+
     // ==========================================
-    // 3. TODO EL CÓDIGO DEL TORNEO (Round Robin, PDF, Tablas)
+    // 2. LÓGICA DEL TORNEO
     // ==========================================
     let equipos = [];
     let seriesData = {};
 
     function agregarEquipo() {
-        const input = document.getElementById('nombreEquipo');
-        const nombre = input.value.trim();
-        if(nombre && !equipos.includes(nombre)) {
-            equipos.push(nombre);
-            document.getElementById('listaInscritos').innerHTML += `<li>${nombre}</li>`;
+        const inp = document.getElementById('nombreEquipo');
+        const n = inp.value.trim();
+        if(n && !equipos.includes(n)) {
+            equipos.push(n);
+            document.getElementById('listaInscritos').innerHTML += `<li>${n}</li>`;
             document.getElementById('contEq').innerText = equipos.length;
-            input.value = ""; input.focus();
+            inp.value = ""; inp.focus();
         }
     }
 
@@ -201,67 +180,74 @@
         document.getElementById('pantallaGestion').style.display = "flex";
         
         let mezclados = [...equipos].sort(() => Math.random() - 0.5);
-        seriesData = {};
-
-        for(let i=0; i<nS; i++) {
-            seriesData[String.fromCharCode(65+i)] = { equipos: [], partidos: [] };
-        }
+        for(let i=0; i<nS; i++) seriesData[String.fromCharCode(65+i)] = { equipos: [], partidos: [] };
 
         mezclados.forEach((eq, i) => {
             let letra = String.fromCharCode(65 + (i % nS));
             seriesData[letra].equipos.push({nombre: eq, pj:0, pg:0, pe:0, pp:0, gf:0, gc:0, dg:0, pts:0});
         });
-
         dibujarPantalla();
     }
 
     function dibujarPantalla() {
-        const cont = document.getElementById('contenedorTorneo');
-        cont.innerHTML = "";
+        const areaF = document.getElementById('areaFixtures');
+        const areaT = document.getElementById('areaTablas');
+        areaF.innerHTML = ""; areaT.innerHTML = "";
 
         for(let letra in seriesData) {
-            let html = `<div class="seccion-fixture"><div class="seccion-titulo" style="max-width:100%;">⚡ SERIE ${letra} - ROL DE PARTIDOS ⚡</div>`;
-            
+            // FIXTURES
+            let htmlF = `<div class="seccion-fixture" id="sec_fix_${letra}" style="width:100%; max-width:550px;"><div class="seccion-titulo" style="max-width:100%;">⚡ SERIE ${letra} - FIXTURE ⚡</div>`;
             let eqRefs = [...seriesData[letra].equipos];
             if (eqRefs.length % 2 !== 0) eqRefs.push({nombre: "DESCANSA", descansa: true});
             
-            let totalFechas = eqRefs.length - 1;
-            let mitad = eqRefs.length / 2;
-            let matchID = 0;
+            let totalFechas = eqRefs.length - 1; let mitad = eqRefs.length / 2; let matchID = 0;
 
             for (let f = 0; f < totalFechas; f++) {
-                html += `<div class="fecha-titulo">JORNADA / FECHA ${f+1}</div>`;
+                htmlF += `<div class="fecha-titulo">JORNADA ${f+1}</div>`;
                 for (let i = 0; i < mitad; i++) {
-                    let eqL = eqRefs[i];
-                    let eqV = eqRefs[eqRefs.length - 1 - i];
-
+                    let eqL = eqRefs[i], eqV = eqRefs[eqRefs.length - 1 - i];
                     if(!eqL.descansa && !eqV.descansa) {
                         let idxL = seriesData[letra].equipos.findIndex(e => e.nombre === eqL.nombre);
                         let idxV = seriesData[letra].equipos.findIndex(e => e.nombre === eqV.nombre);
                         
-                        html += `
+                        // CANDADO DE PARTIDOS (MODO EDICIÓN Y MODO GUARDADO)
+                        htmlF += `
                         <div class="match-card">
                             <span class="team-name" style="text-align:right;">${eqL.nombre}</span>
-                            <input type="number" class="goles-input local" id="gL_${letra}_${matchID}" min="0" onchange="recalcular('${letra}')">
-                            <span style="font-size:12px; color:#666; font-style:italic;">VS</span>
-                            <input type="number" class="goles-input visita" id="gV_${letra}_${matchID}" min="0" onchange="recalcular('${letra}')">
+                            
+                            <div id="editMode_${letra}_${matchID}" style="display:flex; align-items:center; gap:5px;">
+                                <input type="number" class="goles-input local" id="gL_${letra}_${matchID}" min="0">
+                                <span style="font-size:10px; color:#666;">VS</span>
+                                <input type="number" class="goles-input visita" id="gV_${letra}_${matchID}" min="0">
+                                <button class="btn-bloquear" onclick="guardarPartido('${letra}', ${matchID})">💾</button>
+                            </div>
+
+                            <div id="viewMode_${letra}_${matchID}" style="display:none; align-items:center;">
+                                <span style="font-size:16px; font-weight:bold; color:var(--neon-blue);" id="lblL_${letra}_${matchID}">0</span>
+                                <span style="margin:0 10px; color:#555;">-</span>
+                                <span style="font-size:16px; font-weight:bold; color:var(--neon-blue);" id="lblV_${letra}_${matchID}">0</span>
+                                <button class="btn-editar" onclick="abrirPartido('${letra}', ${matchID})">✏️</button>
+                            </div>
+
                             <span class="team-name" style="text-align:left;">${eqV.nombre}</span>
                         </div>`;
                         
-                        seriesData[letra].partidos.push({ locIdx: idxL, visIdx: idxV, matchID: matchID });
+                        seriesData[letra].partidos.push({ locIdx: idxL, visIdx: idxV, matchID: matchID, guardado: false });
                         matchID++;
                     } else {
                         let libre = eqL.descansa ? eqV.nombre : eqL.nombre;
-                        html += `<div class="match-card" style="justify-content:center; color:#555; font-size:12px;">${libre} - LIBRE (DESCANSA)</div>`;
+                        htmlF += `<div class="match-card" style="justify-content:center; color:#555; font-size:12px;">${libre} - LIBRE</div>`;
                     }
                 }
                 eqRefs.splice(1, 0, eqRefs.pop());
             }
-            html += `</div>`;
-            html += `<div class="salto-pagina"></div>`;
-            html += `
-            <div class="seccion-tabla" style="width:100%; display:flex; flex-direction:column; align-items:center;">
-                <div class="seccion-titulo" style="max-width:100%;">📊 TABLA DE POSICIONES SERIE ${letra}</div>
+            htmlF += `</div>`;
+            areaF.innerHTML += htmlF;
+
+            // TABLAS
+            let htmlT = `
+            <div class="seccion-tabla" id="sec_tab_${letra}" style="width:100%; max-width:550px; display:flex; flex-direction:column; align-items:center;">
+                <div class="seccion-titulo" style="max-width:100%;">📊 TABLA SERIE ${letra}</div>
                 <div class="tabla-contenedor">
                     <table>
                         <thead><tr><th class="txt-left">Equipo</th><th>PJ</th><th>PG</th><th>PE</th><th>PP</th><th>GF</th><th>GC</th><th>DG</th><th class="col-pts">PTS</th></tr></thead>
@@ -271,8 +257,35 @@
                     </table>
                 </div>
             </div>`;
-            cont.innerHTML += html;
+            areaT.innerHTML += htmlT;
         }
+    }
+
+    // --- FUNCIONES DEL CANDADO DE PARTIDOS ---
+    function guardarPartido(letra, matchID) {
+        let iL = document.getElementById(`gL_${letra}_${matchID}`).value;
+        let iV = document.getElementById(`gV_${letra}_${matchID}`).value;
+        
+        if(iL === "" || iV === "") return alert("Ingresa ambos goles antes de guardar.");
+
+        document.getElementById(`lblL_${letra}_${matchID}`).innerText = iL;
+        document.getElementById(`lblV_${letra}_${matchID}`).innerText = iV;
+        
+        document.getElementById(`editMode_${letra}_${matchID}`).style.display = "none";
+        document.getElementById(`viewMode_${letra}_${matchID}`).style.display = "flex";
+        
+        let partido = seriesData[letra].partidos.find(p => p.matchID === matchID);
+        partido.guardado = true;
+        recalcular(letra);
+    }
+
+    function abrirPartido(letra, matchID) {
+        document.getElementById(`editMode_${letra}_${matchID}`).style.display = "flex";
+        document.getElementById(`viewMode_${letra}_${matchID}`).style.display = "none";
+        
+        let partido = seriesData[letra].partidos.find(p => p.matchID === matchID);
+        partido.guardado = false;
+        recalcular(letra);
     }
 
     function recalcular(letra) {
@@ -280,10 +293,10 @@
         gr.forEach(e => { e.pj=0; e.pg=0; e.pe=0; e.pp=0; e.gf=0; e.gc=0; e.dg=0; e.pts=0; });
 
         seriesData[letra].partidos.forEach(p => {
-            let gL = parseInt(document.getElementById(`gL_${letra}_${p.matchID}`).value);
-            let gV = parseInt(document.getElementById(`gV_${letra}_${p.matchID}`).value);
+            if(p.guardado) {
+                let gL = parseInt(document.getElementById(`gL_${letra}_${p.matchID}`).value);
+                let gV = parseInt(document.getElementById(`gV_${letra}_${p.matchID}`).value);
 
-            if(!isNaN(gL) && !isNaN(gV)) {
                 let eqL = gr[p.locIdx], eqV = gr[p.visIdx];
                 eqL.pj++; eqV.pj++; eqL.gf+=gL; eqL.gc+=gV; eqV.gf+=gV; eqV.gc+=gL;
                 if(gL > gV) { eqL.pg++; eqL.pts+=3; eqV.pp++; }
@@ -300,58 +313,109 @@
         `).join('');
     }
 
+    // --- MÓDULO FASE FINAL (CON SELECTOR DE RONDAS) ---
     function mostrarMenuPlayoffs() { document.getElementById('panelPlayoffs').style.display = "block"; }
     
     function generarPlayoffs(modo) {
+        let nPartidos = parseInt(document.getElementById('rondaPlayoff').value);
         let cont = document.getElementById('llavesPlayoff');
-        let html = `<div class="seccion-titulo" style="text-align:center;">🏆 ENCUENTRO FINAL 🏆</div>`;
+        let html = `<div class="seccion-titulo" style="text-align:center;">🏆 ELIMINATORIAS 🏆</div>`;
         
         if(modo === 'auto') {
-            let lideres = [];
-            for(let letra in seriesData) {
-                let ranking = [...seriesData[letra].equipos].sort((a,b) => b.pts - a.pts || b.dg - a.dg);
-                lideres.push(ranking[0].nombre);
+            // Agrupar TODOS los equipos y sacar a los mejores N según la ronda
+            let todos = [];
+            for(let l in seriesData) todos = todos.concat(seriesData[l].equipos);
+            todos.sort((a,b) => b.pts - a.pts || b.dg - a.dg || b.gf - a.gf);
+            
+            let clasificados = todos.slice(0, nPartidos * 2);
+            if(clasificados.length < nPartidos * 2) return alert("No hay suficientes equipos inscritos para esta ronda.");
+
+            for(let i=0; i<nPartidos; i++) {
+                let eq1 = clasificados[i].nombre;
+                let eq2 = clasificados[clasificados.length - 1 - i].nombre; // El 1ro vs el Último clasificado
+                html += `<div class="match-card" style="border: 1px solid #ffaa00; margin-bottom:5px;"><span class="team-name" style="text-align:right">${eq1}</span><span style="color:#ffaa00; font-weight:bold;">VS</span><span class="team-name" style="text-align:left">${eq2}</span></div>`;
             }
-            if(lideres.length < 2) return alert("Necesitas al menos 2 series para el modo automático.");
-            html += `<div class="match-card" style="border: 1px solid #ffaa00; margin:0 auto;"><span class="team-name" style="text-align:right">${lideres[0]}</span><span style="color:#ffaa00; font-weight:bold;">VS</span><span class="team-name" style="text-align:left">${lideres[1]}</span></div>`;
-        } 
-        else if(modo === 'manual') {
+        } else {
             let options = equipos.map(e => `<option value="${e}">${e}</option>`).join('');
-            html += `
-            <div class="match-card" style="margin:0 auto;">
-                <select style="width:40%; font-size:12px; padding:8px;"><option value="">Selecciona...</option>${options}</select>
-                <span style="font-weight:bold; font-size:12px;">VS</span>
-                <select style="width:40%; font-size:12px; padding:8px;"><option value="">Selecciona...</option>${options}</select>
-            </div>`;
+            for(let i=0; i<nPartidos; i++) {
+                html += `
+                <div class="match-card" style="margin-bottom:5px;">
+                    <select style="width:40%; font-size:12px; padding:8px;"><option value="">Local...</option>${options}</select>
+                    <span style="font-weight:bold; font-size:12px;">VS</span>
+                    <select style="width:40%; font-size:12px; padding:8px;"><option value="">Visita...</option>${options}</select>
+                </div>`;
+            }
         }
         cont.innerHTML = html;
     }
 
-    function exportarPDF() {
-        const fuente = document.getElementById('contenedorTorneo');
-        const clon = fuente.cloneNode(true);
+    // --- MÓDULO PDF PROFESIONAL (3 PÁGINAS + 2 COLUMNAS) ---
+    function exportarPDFProfesional() {
+        // 1. Crear el lienzo del PDF
         const docPDF = document.createElement('div');
         docPDF.className = "modo-pdf"; 
         
-        docPDF.innerHTML = `
-            <div style="text-align:center; margin-bottom:30px;">
-                <h2 style="margin:0; font-size:24px;">REPORTE OFICIAL DEL TORNEO</h2>
-                <div style="font-weight:bold; margin-top:5px; font-size:12px;">SISTEMA DESARROLLADO POR WILTON VIDAL</div>
-            </div>`;
-        docPDF.appendChild(clon);
-        
-        docPDF.querySelectorAll('.match-card').forEach(card => {
-            let inputL = card.querySelector('.goles-input.local');
-            let inputV = card.querySelector('.goles-input.visita');
-            if(inputL && inputV) {
-                let sL = document.createElement('span'); sL.className = "goles-display"; sL.innerText = inputL.value || " - ";
-                let sV = document.createElement('span'); sV.className = "goles-display"; sV.innerText = inputV.value || " - ";
-                inputL.parentNode.replaceChild(sL, inputL);
-                inputV.parentNode.replaceChild(sV, inputV);
-            }
+        // HOJA 1: PORTADA Y FIXTURES (A 2 COLUMNAS)
+        let fHTML = document.getElementById('areaFixtures').cloneNode(true);
+        // Limpiar botones de guardar/editar para impresión
+        fHTML.querySelectorAll('.btn-bloquear, .btn-editar').forEach(b => b.remove());
+        fHTML.querySelectorAll('input').forEach(i => {
+            let s = document.createElement('span'); s.innerText = i.value || "-"; s.className = "goles-display";
+            i.parentNode.replaceChild(s, i);
         });
 
-        const opt = { margin: 10, filename: 'Torneo_WiltonVidal.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
+        docPDF.innerHTML = `
+            <div style="text-align:center; margin-bottom:20px;">
+                <h2 style="margin:0; font-size:24px; color:black;">REPORTE OFICIAL DEL TORNEO</h2>
+                <div style="font-weight:bold; margin-top:5px; font-size:12px; color:black;">SISTEMA DESARROLLADO POR WILTON VIDAL</div>
+            </div>
+            <div class="pdf-columnas">${fHTML.innerHTML}</div>
+        `;
+
+        // HOJA 2: TABLAS POR SERIE
+        let tHTML = document.getElementById('areaTablas').cloneNode(true);
+        docPDF.innerHTML += `
+            <div class="salto-pagina"></div>
+            <h2 style="text-align:center; color:black;">POSICIONES POR SERIE</h2>
+            <div>${tHTML.innerHTML}</div>
+        `;
+
+        // HOJA 3: TABLA GENERAL ABSOLUTA
+        let todos = [];
+        for(let l in seriesData) {
+            seriesData[l].equipos.forEach(e => todos.push({...e, serie: l}));
+        }
+        todos.sort((a,b) => b.pts - a.pts || b.dg - a.dg || b.gf - a.gf);
+
+        let trsGlobal = todos.map((e, i) => `
+            <tr>
+                <td style="color:black; font-weight:bold;">${i+1}</td>
+                <td style="color:black;">${e.serie}</td>
+                <td class="txt-left" style="color:black;">${e.nombre}</td>
+                <td style="color:black;">${e.pj}</td>
+                <td style="color:black;">${e.pg}</td>
+                <td style="color:black;">${e.pe}</td>
+                <td style="color:black;">${e.pp}</td>
+                <td style="color:black;">${e.gf}</td>
+                <td style="color:black;">${e.gc}</td>
+                <td style="color:black; font-weight:bold;">${e.dg}</td>
+                <td class="col-pts" style="color:black;">${e.pts}</td>
+            </tr>`).join('');
+
+        docPDF.innerHTML += `
+            <div class="salto-pagina"></div>
+            <h2 style="text-align:center; color:black;">TABLA GENERAL (RANKING GLOBAL)</h2>
+            <table style="width:100%; border-collapse:collapse; text-align:center; font-size:12px; border:2px solid black;">
+                <thead style="background:#eee;"><tr><th>#</th><th>SERIE</th><th class="txt-left">EQUIPO</th><th>PJ</th><th>PG</th><th>PE</th><th>PP</th><th>GF</th><th>GC</th><th>DG</th><th>PTS</th></tr></thead>
+                <tbody>${trsGlobal}</tbody>
+            </table>
+        `;
+
+        // 4. GENERAR ARCHIVO
+        const opt = { 
+            margin: 10, filename: 'Reporte_Deportivo.pdf', image: { type: 'jpeg', quality: 0.98 }, 
+            html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } 
+        };
         html2pdf().from(docPDF).set(opt).save();
     }
 </script>
