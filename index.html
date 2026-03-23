@@ -3,301 +3,301 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Fixture Pro - by WILTON VIDAL</title>
+    <title>Sistema de Gestión Deportiva - WILTON VIDAL</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
-        :root {
-            --neon-blue: #00d4ff;
-            --neon-pink: #ff0055;
-            --bg-dark: #010103;
-            --text-color: #ffffff;
-        }
-
-        body {
-            background-color: var(--bg-dark);
-            color: var(--text-color);
-            font-family: 'Segoe UI', sans-serif;
-            margin: 0;
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        /* TÍTULO Y TU FIRMA */
-        h1 { font-size: 28px; color: var(--neon-blue); text-shadow: 0 0 15px var(--neon-blue); margin: 15px 0 5px 0; }
+        :root { --neon-blue: #00d4ff; --neon-pink: #ff0055; --bg-dark: #010103; --card-bg: #050515; }
         
-        .autor-firma {
-            font-size: 12px;
-            color: var(--neon-pink);
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            text-shadow: 0 0 8px var(--neon-pink);
-            margin-bottom: 25px;
-            font-weight: bold;
-        }
+        /* DISEÑO DE PANTALLA (Estilo Gamer/Oscuro) */
+        body { background-color: var(--bg-dark); color: white; font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; }
+        
+        h1 { font-size: 24px; color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue); margin: 10px 0 5px 0; text-transform: uppercase; }
+        .autor { color: var(--neon-pink); font-weight: bold; letter-spacing: 2px; margin-bottom: 20px; font-size: 11px; text-transform: uppercase; }
 
-        .panel-control {
-            background: #0a0a1a;
-            padding: 20px;
-            border-radius: 12px;
-            border: 1px solid #1a1a3a;
-            width: 95%;
-            max-width: 500px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            margin-bottom: 20px;
-        }
+        /* Paneles de Control */
+        .panel { background: #0a0a1a; padding: 15px; border-radius: 10px; border: 1px solid #1a1a3a; width: 95%; max-width: 500px; box-shadow: 0 0 15px rgba(0,0,0,0.5); margin-bottom: 15px; }
+        
+        .ingreso-equipo { display: flex; gap: 5px; margin-bottom: 10px; }
+        input[type="text"] { flex-grow: 1; background: #000; color: white; border: 1px solid #333; padding: 10px; border-radius: 5px; font-size: 16px; }
+        
+        button { border-radius: 5px; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn-add { background: #222; color: white; border: 1px solid #444; padding: 10px 15px; }
+        .btn-main { width: 100%; padding: 15px; background: linear-gradient(45deg, #0055ff, #00aaff); color: white; text-transform: uppercase; font-size: 16px; margin-top: 10px; }
+        .btn-main:hover { box-shadow: 0 0 10px var(--neon-blue); }
 
-        .ingreso-equipo { display: flex; gap: 8px; margin-bottom: 15px; }
+        #listaInscritos { list-style: none; padding: 0; margin: 0 0 10px 0; max-height: 100px; overflow-y: auto; color: #aaa; font-size: 13px; }
+        
+        /* TARJETAS DE PARTIDO (FIXTURE) */
+        .seccion-titulo { font-size: 18px; color: #fff; border-left: 4px solid var(--neon-pink); padding-left: 10px; margin: 25px 0 10px 0; text-align: left; width: 100%; max-width: 550px; text-transform: uppercase;}
+        
+        .match-card { background: var(--card-bg); border: 1px solid #1a1a3a; padding: 12px; margin: 8px 0; border-radius: 6px; display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 550px; box-sizing: border-box; }
+        .team-name { width: 38%; font-size: 13px; font-weight: bold; text-transform: uppercase; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .goles-input { width: 35px; padding: 5px; text-align: center; background: #000; color: var(--neon-blue); border: 1px solid var(--neon-blue); font-weight: bold; font-size: 14px; border-radius: 4px; }
+        .vs { font-size: 12px; color: #666; font-style: italic; }
 
-        input#nombreEquipo {
-            flex-grow: 1;
-            background: #000;
-            border: 1px solid #333;
-            color: white;
-            padding: 12px;
-            border-radius: 6px;
-            font-size: 16px;
-        }
+        /* TABLAS PRO (TOTAL STATS) */
+        .tabla-contenedor { width: 100%; max-width: 550px; overflow-x: auto; background: #050510; border-radius: 8px; border: 1px solid #222; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; font-size: 11px; min-width: 400px; }
+        th { background: #111; color: var(--neon-blue); padding: 10px 5px; text-transform: uppercase; border-bottom: 2px solid #222; }
+        td { padding: 10px 5px; border-bottom: 1px solid #222; text-align: center; color: #ccc; }
+        .txt-left { text-align: left; padding-left: 10px; color: white; font-weight: bold; width: 30%; }
+        .col-pts { font-weight: bold; color: white; font-size: 12px; background: rgba(0,212,255,0.05); }
 
-        .btn-add {
-            background: #222;
-            color: white;
-            border: 1px solid var(--neon-blue);
-            padding: 10px 20px;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        #listaInscritos {
-            list-style: none;
-            padding: 0;
-            margin: 10px 0;
-            max-height: 150px;
-            overflow-y: auto;
-            background: rgba(255,255,255,0.03);
-            border-radius: 6px;
-        }
-
-        #listaInscritos li {
-            padding: 10px;
-            border-bottom: 1px solid #222;
-            display: flex;
-            justify-content: space-between;
-            font-size: 14px;
-        }
-
-        .btn-borrar { color: var(--neon-pink); background: none; border: none; cursor: pointer; font-weight: bold; }
-
-        .config-fila { display: flex; justify-content: space-between; align-items: center; margin: 12px 0; font-size: 14px; }
-
-        input[type="number"] {
-            background: #000;
-            border: 1px solid var(--neon-blue);
-            color: white;
-            padding: 8px;
-            border-radius: 5px;
-            width: 55px;
-            text-align: center;
-        }
-
-        .btn-generar {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(45deg, #0055ff, #00aaff);
-            border: none;
-            color: white;
-            font-weight: bold;
-            text-transform: uppercase;
-            cursor: pointer;
-            border-radius: 8px;
-            font-size: 16px;
-            box-shadow: 0 4px 15px rgba(0, 85, 255, 0.4);
-        }
-
-        .btn-exportar {
-            width: 100%;
-            padding: 12px;
-            background: #111;
-            border: 1px solid #333;
-            color: #00d4ff;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            margin-top: 10px;
-            display: none;
-        }
-
-        /* DISEÑO DE RESULTADOS */
-        .pantalla-exportar { width: 100%; max-width: 500px; }
-
-        .serie-header {
-            font-size: 18px;
-            color: #fff;
-            border-left: 4px solid var(--neon-pink);
-            padding-left: 12px;
-            margin: 35px 0 15px 0;
-            text-align: left;
-            text-transform: uppercase;
-        }
-
-        .match-card {
-            background: linear-gradient(90deg, #050515 0%, #001233 50%, #050515 100%);
-            border: 1px solid #1a1a3a;
-            margin: 12px 0;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 14px;
-            border-radius: 6px;
-            position: relative;
-        }
-
-        .match-card::after {
-            content: '';
-            position: absolute;
-            left: 0; bottom: 0;
-            width: 100%; height: 2px;
-            background: linear-gradient(90deg, transparent, var(--neon-blue), transparent);
-        }
-
-        .team-name { width: 42%; font-size: 14px; text-transform: uppercase; font-weight: bold; }
-
-        .vs-circle {
-            background: #fff;
-            color: #000;
-            width: 30px; height: 30px;
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-weight: 900; font-style: italic; font-size: 13px;
-        }
-
-        /* TABLA PRO */
-        .tabla-contenedor { width: 100%; overflow-x: auto; margin-top: 10px; background: #050510; border-radius: 8px; border: 1px solid #222; }
-        .tabla-pro { width: 100%; border-collapse: collapse; font-size: 11px; text-align: center; }
-        .tabla-pro th { background-color: #111; color: var(--neon-blue); padding: 10px; }
-        .tabla-pro td { border-bottom: 1px solid #222; padding: 10px; color: #ccc; }
-        .col-equipo { text-align: left; width: 35%; font-weight: bold; }
-
-        @media print {
-            body { background: white; color: black; }
-            .panel-control { display: none; }
-        }
+        /* ESTILOS EXCLUSIVOS PARA EL PDF (FONDO BLANCO) */
+        .modo-pdf { background: white !important; color: black !important; padding: 20px !important; font-family: 'Helvetica', sans-serif !important; }
+        .modo-pdf h1, .modo-pdf .autor, .modo-pdf h2, .modo-pdf h3 { color: black !important; text-shadow: none !important; border-color: black !important; }
+        .modo-pdf .match-card { background: white !important; border: 1px solid #ccc !important; color: black !important; box-shadow: none !important; }
+        .modo-pdf .match-card::after { display: none; }
+        .modo-pdf .goles-display { font-weight: bold; font-size: 16px; color: black; margin: 0 10px; }
+        .modo-pdf table { border: 1px solid #ccc !important; }
+        .modo-pdf th { background: #f2f2f2 !important; color: black !important; border: 1px solid #ccc !important; }
+        .modo-pdf td { color: black !important; border: 1px solid #eee !important; }
+        .modo-pdf .col-pts { background: #f9f9f9 !important; font-weight: bold; }
+        .modo-pdf .descansa { color: #999 !important; }
     </style>
 </head>
 <body>
 
     <h1>PRO FIXTURE GEN</h1>
-    <div class="autor-firma">Desarrollado por WILTON VIDAL</div>
-    
-    <div class="panel-control">
+    <div class="autor">DESARROLLADO POR WILTON VIDAL</div>
+
+    <div id="pantallaSetup" class="panel">
         <div class="ingreso-equipo">
-            <input type="text" id="nombreEquipo" placeholder="Nombre del equipo...">
+            <input type="text" id="nombreEquipo" placeholder="Nuevo equipo...">
             <button class="btn-add" onclick="agregarEquipo()">+</button>
         </div>
-
         <ul id="listaInscritos"></ul>
-        
-        <div class="config-fila">
-            <label>Equipos inscritos:</label>
-            <span id="contadorEquipos" style="color: var(--neon-blue); font-weight: bold;">0</span>
+        <div class="config-fila" style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; font-size:14px;">
+            <label>Inscritos: <b id="contEq" style="color:var(--neon-blue)">0</b></label>
+            <div>
+                <label>Series:</label>
+                <input type="number" id="numSeries" value="2" min="1" style="width:40px; background:#000; color:white; border:1px solid #444; padding:5px; text-align:center;">
+            </div>
         </div>
-
-        <div class="config-fila">
-            <label>Número de Series:</label>
-            <input type="number" id="numSeries" value="2" min="1">
-        </div>
-        
-        <button class="btn-generar" onclick="procesarTorneo()">Generar Software de Torneo</button>
-        <button id="btnExportar" class="btn-exportar" onclick="exportarAPDF()">📥 Descargar Fixture (PDF)</button>
+        <button class="btn-main" onclick="generarSistema()">Generar Software de Torneo</button>
     </div>
 
-    <div id="pantallaResultados" class="pantalla-exportar"></div>
+    <div id="pantallaGestion" style="display:none; width:100%; display:flex; flex-direction:column; align-items:center;">
+        <div class="panel" style="margin-top:0;">
+            <button onclick="exportarPDF()" style="width:100%; background:#1a1a3a; color:var(--neon-blue); border:1px solid #333; padding:12px;">📥 DESCARGAR REPORTE OFICIAL (PDF BLANCO)</button>
+        </div>
+        <div id="contenedorTorneo" style="width:100%; display:flex; flex-direction:column; align-items:center;"></div>
+    </div>
 
-    <script>
-        /*******************************************************
-         * SOFTWARE DESARROLLADO POR WILTON VIDAL
-         *******************************************************/
-        let listaEquiposBase = [];
+<script>
+    /*******************************************************
+     * SOFTWARE DE GESTIÓN DEPORTIVA - WILTON VIDAL
+     *******************************************************/
+    let equipos = []; // Base de datos de nombres
+    let seriesData = {}; // Base de datos de stats y partidos
 
-        function agregarEquipo() {
-            const input = document.getElementById('nombreEquipo');
-            const nombre = input.value.trim();
-            if (!nombre || listaEquiposBase.includes(nombre)) return;
-
-            listaEquiposBase.push(nombre);
-            input.value = "";
-            input.focus();
-            renderLista();
+    function agregarEquipo() {
+        const input = document.getElementById('nombreEquipo');
+        const nombre = input.value.trim();
+        if(nombre && !equipos.includes(nombre)) {
+            equipos.push(nombre);
+            document.getElementById('listaInscritos').innerHTML += `<li>${nombre}</li>`;
+            document.getElementById('contEq').innerText = equipos.length;
+            input.value = ""; input.focus();
         }
+    }
 
-        function renderLista() {
-            const listaUL = document.getElementById('listaInscritos');
-            const contador = document.getElementById('contadorEquipos');
-            listaUL.innerHTML = "";
-            contador.innerText = listaEquiposBase.length;
-            listaEquiposBase.forEach((equipo, index) => {
-                listaUL.innerHTML += `<li>${equipo} <button class="btn-borrar" onclick="borrarEquipo(${index})">✕</button></li>`;
-            });
-        }
+    function generarSistema() {
+        if (equipos.length < 2) return alert("Inscribe al menos 2 equipos.");
+        
+        const nS = parseInt(document.getElementById('numSeries').value);
+        const contTorneo = document.getElementById('contenedorTorneo');
+        
+        // Cambio de pantalla
+        document.getElementById('pantallaSetup').style.display = "none";
+        document.getElementById('pantallaGestion').style.display = "flex";
+        contTorneo.innerHTML = "";
+        
+        // Mezcla y división en series
+        let mezclados = [...equipos].sort(() => Math.random() - 0.5);
+        seriesData = {};
 
-        function borrarEquipo(index) {
-            listaEquiposBase.splice(index, 1);
-            renderLista();
-        }
-
-        function procesarTorneo() {
-            const nSeries = parseInt(document.getElementById('numSeries').value);
-            const contenedor = document.getElementById('pantallaResultados');
-            const btnExportar = document.getElementById('btnExportar');
-            
-            if (listaEquiposBase.length < 2) return alert("Inscribe más equipos");
-
-            contenedor.innerHTML = "";
-            let equiposMezclados = [...listaEquiposBase].sort(() => Math.random() - 0.5);
-            let series = Array.from({ length: nSeries }, () => []);
-            equiposMezclados.forEach((eq, i) => series[i % nSeries].push(eq));
-
-            series.forEach((grupo, idx) => {
-                const letra = String.fromCharCode(65 + idx);
-                let html = `<div class="serie-header">⚡ SERIE ${letra} - FIXTURE ⚡</div>`;
-                
-                for (let i = 0; i < grupo.length; i += 2) {
-                    let loc = grupo[i];
-                    let vis = grupo[i+1] || '<span style="color:#444">DESCANSA</span>';
-                    html += `<div class="match-card">
-                                <div class="team-name" style="text-align:right">${loc}</div>
-                                <div class="vs-circle">VS</div>
-                                <div class="team-name" style="text-align:left">${vis}</div>
-                             </div>`;
-                }
-
-                html += `<div class="serie-header">📊 TABLA DE POSICIONES ${letra} 📊</div>
-                         <div class="tabla-contenedor">
-                            <table class="tabla-pro">
-                                <thead><tr><th class="col-equipo">Equipo</th><th>PJ</th><th>PG</th><th>PE</th><th>PP</th><th>GF</th><th>GC</th><th>PTS</th></tr></thead>
-                                <tbody>${grupo.map(e => `<tr><td class="col-equipo">${e}</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td style="color:white;font-weight:bold">0</td></tr>`).join('')}</tbody>
-                            </table>
-                         </div>`;
-                contenedor.innerHTML += html;
-            });
-            btnExportar.style.display = "block";
-        }
-
-        function exportarAPDF() {
-            const elemento = document.getElementById('pantallaResultados');
-            const opt = {
-                margin: 10,
-                filename: 'Software_Wilton_Vidal.pdf',
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        // Inicializar estructura de series y stats PRO
+        for(let i=0; i<nS; i++) {
+            let letra = String.fromCharCode(65+i);
+            seriesData[letra] = { 
+                equipos: [], // Aquí van los objetos con stats
+                partidos: [] 
             };
-            html2pdf().from(elemento).set(opt).save();
         }
-    </script>
+
+        mezclados.forEach((eq, i) => {
+            let letra = String.fromCharCode(65 + (i % nS));
+            // OBJETO DE EQUIPO NIVEL PRO
+            seriesData[letra].equipos.push({
+                nombre: eq, 
+                pj:0, pg:0, pe:0, pp:0, // Partidos
+                gf:0, gc:0, dg:0,      // Goles
+                pts:0                  // Puntos
+            });
+        });
+
+        // Dibujar Fixture y Tablas en la pantalla
+        for(let letra in seriesData) {
+            let html = `<div class="seccion-titulo">⚡ SERIE ${letra} - FIXTURE E INGRESO ⚡</div>`;
+            let gr = seriesData[letra].equipos;
+            
+            // --- GENERAR FIXTURE CON INPUTS ---
+            for(let i=0; i<gr.length; i+=2) {
+                if(gr[i+1]) {
+                    // ID único para cada input de goles: gL_A_0 (Goles Local, Serie A, Partido 0)
+                    html += `
+                    <div class="match-card">
+                        <span class="team-name" style="text-align:right;">${gr[i].nombre}</span>
+                        <input type="number" class="goles-input local" id="gL_${letra}_${i}" min="0" onchange="recalcularTodo('${letra}')">
+                        <span class="vs">VS</span>
+                        <input type="number" class="goles-input visita" id="gV_${letra}_${i}" min="0" onchange="recalcularTodo('${letra}')">
+                        <span class="team-name" style="text-align:left;">${gr[i+1].nombre}</span>
+                    </div>`;
+                    // Guardar referencia del partido
+                    seriesData[letra].partidos.push({locIdx: i, visIdx: i+1});
+                } else {
+                    html += `<div class="match-card"><span class="team-name descansa" style="width:100%; text-align:center; color:#555;">${gr[i].nombre} - DESCANSA</span></div>`;
+                }
+            }
+
+            // --- GENERAR TABLA TOTAL STATS ---
+            html += `
+            <div class="seccion-titulo">📊 TABLA DE POSICIONES SERIE ${letra} 📊</div>
+            <div class="tabla-contenedor" id="tabla_${letra}">
+                <table class="tabla-pro">
+                    <thead>
+                        <tr>
+                            <th class="txt-left">Equipo</th>
+                            <th>PJ</th><th>PG</th><th>PE</th><th>PP</th>
+                            <th>GF</th><th>GC</th><th>DG</th>
+                            <th class="col-pts">PTS</th>
+                        </tr>
+                    </thead>
+                    <tbody id="body_${letra}">
+                        ${gr.map(e => `<tr><td class="txt-left">${e.nombre}</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td class="col-pts">0</td></tr>`).join('')}
+                    </tbody>
+                </table>
+            </div>`;
+            contTorneo.innerHTML += html;
+        }
+    }
+
+    // EL "CEREBRO" DEL SISTEMA: RECALCULA PJ, PTS, GF, GC, DG
+    function recalcularTodo(letra) {
+        let data = seriesData[letra];
+        let gr = data.equipos;
+        let ptsWin = 3, ptsEmp = 1; // Configuración estándar
+
+        // 1. Reiniciar todos los stats a cero antes de volver a contar
+        gr.forEach(e => { 
+            e.pj=0; e.pg=0; e.pe=0; e.pp=0; 
+            e.gf=0; e.gc=0; e.dg=0; e.pts=0; 
+        });
+
+        // 2. Recorrer los partidos cargados en pantalla
+        data.partidos.forEach(p => {
+            let inputL = document.getElementById(`gL_${letra}_${p.locIdx}`);
+            let inputV = document.getElementById(`gV_${letra}_${p.locIdx}`);
+            
+            let gL = parseInt(inputL.value);
+            let gV = parseInt(inputV.value);
+
+            // Solo procesar si ambos campos tienen números
+            if(!isNaN(gL) && !isNaN(gV)) {
+                let eqL = gr[p.locIdx];
+                let eqV = gr[p.visIdx];
+
+                // Sumar Goles y Partidos Jugados
+                eqL.pj++; eqV.pj++;
+                eqL.gf += gL; eqL.gc += gV;
+                eqV.gf += gV; eqV.gc += gL;
+
+                // Lógica de Puntos y Resultados (W/D/L)
+                if(gL > gV) { // Gana Local
+                    eqL.pg++; eqL.pts += ptsWin;
+                    eqV.pp++;
+                } else if(gL < gV) { // Gana Visita
+                    eqV.pg++; eqV.pts += ptsWin;
+                    eqL.pp++;
+                } else { // Empate
+                    eqL.pe++; eqL.pts += ptsEmp;
+                    eqV.pe++; eqV.pts += ptsEmp;
+                }
+            }
+        });
+
+        // 3. Calcular Diferencia de Goles y ORDENAR (PTS -> DG -> GF)
+        gr.forEach(e => { e.dg = e.gf - e.gc; });
+        gr.sort((a,b) => b.pts - a.pts || b.dg - a.dg || b.gf - a.gf);
+
+        // 4. Actualizar visualmente la tabla en pantalla
+        let body = document.getElementById(`body_${letra}`);
+        body.innerHTML = gr.map(e => `
+            <tr>
+                <td class="txt-left">${e.nombre}</td>
+                <td>${e.pj}</td><td>${e.pg}</td><td>${e.pe}</td><td>${e.pp}</td>
+                <td>${e.gf}</td><td>${e.gc}</td>
+                <td style="color:${e.dg>0?'#0f0':(e.dg<0?'#f00':'#ccc')}">${e.dg>0?'+'+e.dg:e.dg}</td>
+                <td class="col-pts">${e.pts}</td>
+            </tr>
+        `).join('');
+    }
+
+    // FUNCIÓN DE EXPORTACIÓN LIMPIA (PDF BLANCO)
+    function exportarPDF() {
+        const fuente = document.getElementById('contenedorTorneo');
+        
+        // Crear un clon temporal para manipular el diseño sin romper la pantalla
+        const clon = fuente.cloneNode(true);
+        
+        // Crear el contenedor del documento oficial
+        const docPDF = document.createElement('div');
+        docPDF.className = "modo-pdf"; // Aplica los estilos de impresión
+        docPDF.innerHTML = `
+            <div style="text-align:center; margin-bottom:20px;">
+                <h2 style="margin:0;">REPORTE OFICIAL DE CAMPEONATO</h2>
+                <div class="autor" style="margin-top:5px;">SISTEMA DESARROLLADO POR WILTON VIDAL</div>
+                <div style="font-size:12px; margin-top:10px;">Generado el: ${new Date().toLocaleDateString()}</div>
+            </div>
+        `;
+        docPDF.appendChild(clon);
+        
+        // TRUCO PRO: Reemplazar inputs de goles por texto simple para el PDF
+        docPDF.querySelectorAll('.match-card').forEach(card => {
+            let inputL = card.querySelector('.goles-input.local');
+            let inputV = card.querySelector('.goles-input.visita');
+            
+            if(inputL && inputV) {
+                // Crear Spans con los goles actuales
+                let spanL = document.createElement('span');
+                spanL.className = "goles-display";
+                spanL.innerText = inputL.value || "0";
+                
+                let spanV = document.createElement('span');
+                spanV.className = "goles-display";
+                spanV.innerText = inputV.value || "0";
+
+                // Reemplazar inputs por spans
+                inputL.parentNode.replaceChild(spanL, inputL);
+                inputV.parentNode.replaceChild(spanV, inputV);
+            }
+        });
+
+        // Configuración de html2pdf
+        const opt = {
+            margin:       10,
+            filename:     'Reporte_Torneo_WiltonVidal.pdf',
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, logging: false },
+            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        // Ejecutar exportación
+        html2pdf().from(docPDF).set(opt).save();
+    }
+</script>
 </body>
 </html>
